@@ -1,0 +1,131 @@
+---
+title: "Final Project DSC UNAIR"
+author: "Khoirunnisa Alfadistya"
+subtitle: "Exploratory Data Analysis of Titanic Passengers in R"
+output: html_document
+---
+```{r, out.width = "120px"}
+knitr::include_graphics("C:/Users/Khoirunnisa A/Pictures/dsi_logo.png")
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DT)
+library(ggplot2)
+library(ggthemes)
+library(ggfortify)
+library(corrplot)
+library(dplyr)
+library(Hmisc)
+library(ggmap)
+titanic <- read.csv("D:/KULIAH/DSC/finalproject/Titanic.csv",header = TRUE)
+summary (titanic)
+```
+Misi "*Final Project*" dari *Data Science Club* UNAIR kelas R - Statistika yaitu melakukan Analisis Data Eksplotori pada data penumpang (*passanger*) dari kapal Titanic. Data yang digunakan disajikan dalam tabel berikut.
+
+###Titanic Dataset
+```{r}
+datatable(titanic)
+```
+
+dengan keterangan variabel sebagai berikut :
+
+Variabel | Keterangan
+--------- | ------------------------------------------------------------------------------------------
+PassengerId | Nomor Id penumpang (*type should be integers*)
+Survived | Penumpang yang berhasil *survived* atau tidak
+Pclass | kelas *Travel*
+Name | Nama penumpang
+Sex | Jenis Kelamin
+SibSp | Jumlah Saudara / Pasangan dalam kapal
+Parch | Jumlah Orangtua / Anak dalam kapal
+Ticket | Nomor tiket
+Fare | Tarif penumpang
+Cabin | Nomor cabin
+Embarked | Pelabuhan pemberangkatan (C - Cherbourg, S - Southampton, Q = Queenstown)
+
+untuk melakukan analisis data eksploratori pada data penumpang Titanic ini, perlu dilakukan beberapa tahapan analisis, yaitu sebagai berikut :
+
+#1. Eksplorasi ringkasan data (*summary*)
+Berikut adalah tabel ringkasan statistik dasar untuk data penumpang Titanic
+```{r}
+summary(titanic)
+```
+
+#2. Cek *Missing Value*
+Berdasarkan langkah sebelumnya, dalam ringkasan data titanic masih diperoleh nilai missing yaitu berupa nilai NA's pada data *Age* atau usia penumpang. Sehingga perlu dilakukan pengecekan missing value dengan langkah sebagai berikut:
+
+###Jumlah missing value
+```{r}
+sum(is.na(titanic))
+```
+
+###Plot missing value
+```{r}
+library(naniar)
+gg_miss_var(titanic, show_pct = TRUE)
+
+```
+
+Berdasarkan plot tersebut, dapat diketahui bahwa terdapat nilai yang hilang atau *missing value* pada variabel *Age*. Dengan demikian perlu dilakukan tindakan untuk mengatasi adanya *missing value* tersebut agar dapat dilakukan analisis statistik lebih lanjut. Berikut adalah cara mengatasi *missing value* dengan mengganti nilai yang hilang dengan rata-rata variabel *Age*.
+```{r}
+titanic$Age=impute(titanic$Age,mean)
+```
+
+Dengan demikian, diperoleh data yang dapat dianalisis lebih lanjut adalah sebagai berikut :
+```{r}
+datatable(titanic)
+```
+
+#3. Exploratory Data Analysis (EDA)
+Berikut adalah langkah - langkah dalam melakukan EDA :
+
+###Visualisasi data{.tabset}
+
+####Gender
+#####Proporsi gender umum
+```{r}
+prop.sex <- prop.table(table(titanic$Sex))
+print(prop.sex)
+value1=prop.sex*100
+group1=c("Female","Male")
+slices <- prop.sex
+lbls <- group1
+pct <- round(slices/sum(slices)*100)
+lbls <- paste(lbls, pct) # add percents to labels 
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(slices,labels = lbls, col=rainbow(length(lbls)),
+   main="Pie Chart of Gender")
+```
+
+#####Proporsi gender berdasarkan kelas *Travel*
+```{r}
+prop.class <-  prop.table(table(titanic$Pclass))
+print(prop.class)
+value2=prop.class*100
+group2=c("Class-1","Class-2","Class-3")
+slices <- prop.class
+lbls <- group2
+pct <- round(slices/sum(slices)*100)
+lbls <- paste(lbls, pct) # add percents to labels 
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(slices,labels = lbls, col=rainbow(length(lbls)),
+   main="Pie Chart of Gender by Class") 
+```
+
+####Pelabuhan Pemberangkatan
+Visualisasi sebaran pelabuhan pemberangkatan penumpang Titanic
+```{r}
+prop.embarked <- prop.table(table(titanic$Embarked))
+print(prop.embarked)
+value3=prop.embarked*100
+group3=c("Cherbourg","Southampton","Queenstown")
+slices <- prop.embarked
+lbls <- group3
+pct <- round(slices/sum(slices)*100)
+lbls <- paste(lbls, pct) # add percents to labels 
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+pie(slices,labels = lbls, col=rainbow(length(lbls)),
+   main="Pie Chart of Embarked") 
+```
+
+
